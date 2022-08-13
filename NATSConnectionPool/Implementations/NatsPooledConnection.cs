@@ -4,7 +4,7 @@ using NATSConnectionPool.Interfaces;
 
 namespace NATSConnectionPool.Implementations;
 
-internal class NatsPooledConnection : INatsPooledConnection, IDisposable
+internal class NatsPooledConnection : INatsPooledConnection
 {
     private readonly IPool<INatsPooledConnection> _pool;
     public ConnectionFactory Factory { get; }
@@ -61,13 +61,6 @@ internal class NatsPooledConnection : INatsPooledConnection, IDisposable
         _pool = pool;
         Factory = new ConnectionFactory();
         Connection = Factory.CreateConnection(getOption());
-    }
-
-    public async Task Close()
-    {
-        Connection?.Close();
-        Connection?.Dispose();
-        Connection = null;
     }
 
     public void Dispose()
