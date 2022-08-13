@@ -1,8 +1,8 @@
-using MicroEthos.Common.Contracts;
+using NATSConnectionPool.Interfaces;
 
-namespace MicroEthos.Common.Utils.DataStructure;
+namespace NATSConnectionPool.Implementations;
 
-public class Pool<T> : IDisposable, IPool<T>
+internal class Pool<T> : IDisposable, IPool<T>
 {
     #region Constructor & Private Fields
 

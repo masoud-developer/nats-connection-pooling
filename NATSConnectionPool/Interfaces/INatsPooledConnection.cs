@@ -1,9 +1,9 @@
+using NATS.Client;
+
 namespace NATSConnectionPool.Interfaces;
 
-public interface IQueueClient : IDisposable
+public interface INatsPooledConnection : IDisposable
 {
-    Task Enqueue(string queueName, byte[] data);
-    Task Enqueue(string queueName, object data);
-    object AddSubscriber(string queueName, EventHandler<object> handler);
-    Task Close();
+    ConnectionFactory Factory { get; }
+    IConnection Connection { get; }
 }

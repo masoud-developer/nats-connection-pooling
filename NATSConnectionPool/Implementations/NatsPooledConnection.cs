@@ -4,13 +4,15 @@ using NATSConnectionPool.Interfaces;
 
 namespace NATSConnectionPool.Implementations;
 
-internal class NatsPooledConnection : IQueueClient
+internal class NatsPooledConnection : INatsPooledConnection, IDisposable
 {
-    private ConnectionFactory Factory { get; }
+    private readonly IPool<INatsPooledConnection> _pool;
+    public ConnectionFactory Factory { get; }
     public IConnection Connection { get; private set; }
 
-    public NatsPooledConnection(string user, string pass, params string[] servers)
+    public NatsPooledConnection(IPool<INatsPooledConnection> pool, string user, string pass, params string[] servers)
     {
+        _pool = pool;
         Factory = new ConnectionFactory();
         var opt = ConnectionFactory.GetDefaultOptions();
         opt.AllowReconnect = true;
@@ -54,16 +56,11 @@ internal class NatsPooledConnection : IQueueClient
         Connection = Factory.CreateConnection(opt);
     }
 
-    public NatsPooledConnection(Func<Options> getOption)
+    public NatsPooledConnection(IPool<INatsPooledConnection> pool, Func<Options> getOption)
     {
+        _pool = pool;
         Factory = new ConnectionFactory();
         Connection = Factory.CreateConnection(getOption());
-    }
-
-    public async Task Enqueue(string queueName, byte[] data)
-    {
-        Connection.Publish(queueName, data);
-        Connection.Flush();
     }
 
     public async Task Close()
@@ -75,16 +72,15 @@ internal class NatsPooledConnection : IQueueClient
 
     public void Dispose()
     {
-        if (Connection == null)
-            return;
-        Connection?.Close();
-        Connection?.Dispose();
-        Connection = null;
-    }
-
-    public object AddSubscriber(string queueName, EventHandler<object> handler)
-    {
-        var sub = Connection.SubscribeAsync(queueName, (sender, args) => handler(sender, args));
-        return sub;
+        if (_pool.IsDisposed)
+        {
+            if (Connection == null)
+                return;
+            Connection?.Close();
+            Connection?.Dispose();
+            Connection = null;
+        }
+        else
+            _pool.Release(this);
     }
 }
