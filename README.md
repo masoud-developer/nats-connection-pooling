@@ -3,7 +3,7 @@ This repository help to you have a connection pool of your dotnet application NA
 
 ## Installation
 
-1- Install [NATSConnectionPool](https://www.nuget.org/packages/NATSConnectionPool/1.0.0) nuget package.
+1- Install [NATSConnectionPool](https://www.nuget.org/packages/NATSConnectionPool/1.0.1) nuget package.
 
 2- In your startup class config method add bellow section
 ```bash
